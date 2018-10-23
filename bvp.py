@@ -1,6 +1,7 @@
 # This module will contain the boundary value solver code, which we can reference in the Jupyter Notebook.
 import numpy as np
 from scipy.optimize import fsolve
+from matplotlib import pyplot as plt
 
 
 def fun(cf, a, b, deg, ode, bc):
@@ -10,7 +11,9 @@ def fun(cf, a, b, deg, ode, bc):
     # thing = thing.interpolate(fun, deg, (a, b))
 
     # nodes (Chebyshev extrema)
-    x = np.cos((np.pi * np.arange(2 * deg)) / deg)
+    x = np.cos((np.pi * np.arange(deg + 1)) / deg)
+    # scale to (a, b)
+    x = (x * (b - a) + b + a) / 2
 
     # polynomial evaluated at nodes
     cheb_poly = np.polynomial.chebyshev.Chebyshev(cf, (a, b))
@@ -21,7 +24,6 @@ def fun(cf, a, b, deg, ode, bc):
     yb = p[-1]
 
     # coefficients of the derivative of the polynomial
-    # (Source: Chebyshev collocation methods for ordinary differential equations, K. Wright)
     cheb_poly_der = cheb_poly.deriv()
 
     # derivative of polynomial evaluated at the nodes
@@ -33,16 +35,16 @@ def fun(cf, a, b, deg, ode, bc):
     # output for fsolve
     return [
         bc([ya, ya_prime], [yb, yb_prime]),  # boundary conditions
-        p_der[1:-1] - ode(x[1:-1], p[1:-1])  # ODE conditions
+        *p_der[1:-1] - ode(x[1:-1], p[1:-1])  # ODE conditions
     ]
 
 
 def our_own_bvp_solve():
-    f = lambda y: y
+    f = lambda x, y: y
 
     a = 0
     b = 1
-    n = 2
+    n = 8
 
     bc = lambda ya, yb: ya[1] - 1
 
@@ -50,7 +52,11 @@ def our_own_bvp_solve():
 
     cf = fsolve(lambda u: fun(u, a, b, n, f, bc), u0)
 
-    
+    # plotting
+    dom = np.linspace(a, b, 1000)
+    plt.plot(dom, np.exp(dom), label='$e^x$')
+    plt.plot(dom, np.polynomial.chebyshev.chebval(dom, cf), label='estimate')
+    plt.show()
 
 
 
