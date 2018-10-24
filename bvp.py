@@ -1,14 +1,12 @@
 # This module will contain the boundary value solver code, which we can reference in the Jupyter Notebook.
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import root
 from matplotlib import pyplot as plt
+
+coeffs = []
 
 
 def fun(cf, a, b, deg, ode, bc):
-
-    # interpolate
-    # thing = np.polynomial.chebyshev.Chebyshev((1))
-    # thing = thing.interpolate(fun, deg, (a, b))
 
     # nodes (Chebyshev extrema)
     x = np.cos((np.pi * np.arange(deg + 1)) / deg)
@@ -32,30 +30,40 @@ def fun(cf, a, b, deg, ode, bc):
     ya_prime = p_der[0]
     yb_prime = p_der[-1]
 
+    # plot it
+    dom = np.linspace(a, b, 1000)
+    coeffs.append(cf)
+
     # output for fsolve
     return [
-        bc([ya, ya_prime], [yb, yb_prime]),  # boundary conditions
-        *p_der[1:-1] - ode(x[1:-1], p[1:-1])  # ODE conditions
+        *bc([ya, ya_prime], [yb, yb_prime]),  # boundary conditions
+        *(p_der - ode(x, p))  # ODE conditions
     ]
 
 
 def our_own_bvp_solve():
     f = lambda x, y: y
 
-    a = 0
+    a = -1
     b = 1
-    n = 8
+    n = 1
 
-    bc = lambda ya, yb: ya[1] - 1
+    bc = lambda ya, yb: [ya[0] - np.exp(-1)]
 
     u0 = np.random.rand(n + 1)
 
-    cf = fsolve(lambda u: fun(u, a, b, n, f, bc), u0)
+    solution = root(lambda u: fun(u, a, b, n, f, bc), u0, method='lm')
+
+    cf = solution.x
+    print(solution.success)  # flesh this out
 
     # plotting
     dom = np.linspace(a, b, 1000)
     plt.plot(dom, np.exp(dom), label='$e^x$')
     plt.plot(dom, np.polynomial.chebyshev.chebval(dom, cf), label='estimate')
+    # for i, cf_temp in enumerate(coeffs):
+    #     plt.plot(dom, np.polynomial.chebyshev.chebval(dom, cf_temp), label=str(i))
+    plt.legend()
     plt.show()
 
 
