@@ -1,4 +1,4 @@
-# This module will contain the boundary value solver code, which we can reference in the Jupyter Notebook.
+# This module contains the boundary value solver code, which we can reference in the Jupyter Notebook.
 import numpy as np
 from scipy.optimize import root
 from matplotlib import pyplot as plt
@@ -43,13 +43,22 @@ def fun(cf, a, b, deg, ode, bc):
 
 
 def our_own_bvp_solve():
-    f = lambda x, y: y
+    # constants
+    gamma = 5 / 3
+    v_plus = 3 / 5
+    v_star = gamma / (gamma + 2)
+    e_minus = (gamma + 2) * (v_plus - v_star) / 2 / gamma / (gamma + 1)
 
-    a = -1
-    b = 1
+    # ODE
+    f = lambda x, y: np.array([y[0] * (y[0] - 1) + gamma * (y[1] - y[0] * e_minus),
+                               y[0] * (-(y[0] - 1) ** 2 / 2 + y[1] - e_minus + gamma * e_minus * (y[0] - 1))])
+    dim = 2
+
+    a = -20
+    b = 20
     n = 10
 
-    bc = lambda ya, yb: [ya[0] - np.exp(-1)]
+    bc = lambda ya, yb: [yb[0] - np.array([9 / 50, 3 / 5]), yb[1] - "eigenvector"]
 
     u0 = np.random.rand(n + 1)
 
