@@ -28,12 +28,12 @@ def fun(cf, a, b, dim, deg, ode, bc):
     # derivative of polynomial evaluated at the nodes
     p_der = np.array([cheb_poly_der[i](x) for i in range(dim)])
 
-    # ya_prime = p_der[:, 0]
-    # yb_prime = p_der[:, -1]
+    ya_prime = p_der[:, 0]
+    yb_prime = p_der[:, -1]
 
     # output for fsolve
     return [
-        *np.ravel(bc(ya, yb)),  # boundary conditions
+        *np.ravel(bc([ya, ya_prime], [yb, yb_prime])),  # boundary conditions
         *np.ravel((p_der - ode(x,p)))  # ODE conditions
     ]
 
