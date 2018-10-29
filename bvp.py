@@ -40,13 +40,16 @@ def fun(cf, a, b, dim, deg, ode, bc):
     return stuff
 
 
-def our_own_bvp_solve(f, a, b, n, dim, bc, tol=1e-10):
+def our_own_bvp_solve(f, a, b, n, u0, dim, bc, tol=1e-10):
     """Solves a boundary value problem using Chebyshev colocation. Returns a list of functions that form the solution to
     the problem."""
 
-    u0 = np.random.random((n + 1, dim))
+    y0 = np.polynomial.chebyshev.chebfit(np.linspace(a, b, len(u0)), u0, 20)
+    print(y0)
+    plt.plot()
+    input()
 
-    solution = root(lambda u: fun(u, a, b, dim, n, f, bc), u0, method='lm', tol=tol)
+    solution = root(lambda u: fun(u, a, b, dim, n, f, bc), y0, method='lm', tol=tol)
     if not solution.success:
         print('root finding failed')
 
@@ -97,7 +100,11 @@ if __name__ == '__main__':
     # def bc(ya, yb):
     #     return ya[0] - 1
 
-    solution = our_own_bvp_solve(f, a, b, n, dim, bc)
+    u0 = np.zeros((n + 1, dim))
+    u0[0, 0] = 3
+    u0[:, 1] = np.exp(u0[:, 0])
+
+    solution = our_own_bvp_solve(f, a, b, n, u0, dim, bc)
 
     # plotting
     dom = np.linspace(a, b, 1000)
