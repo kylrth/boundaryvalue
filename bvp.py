@@ -38,7 +38,7 @@ def fun(cf, a, b, dim, deg, ode, bc):
     ]
 
 
-def our_own_bvp_solve(f, a, b, n, y0, dim, bc, tol=1e-10):
+def our_own_bvp_solve(f, a, b, n, y0, dim, bc, tol=1e-2):
     """Solves a boundary value problem using Chebyshev colocation. Returns a list of functions that form the solution to
     the problem."""
 
